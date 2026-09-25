@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AURA · Odtwarzacz · Kawiarnia Ziarno</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0B0B0C">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AURA">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="page-player" data-state="idle" data-offline="false" data-muted="false">
+  <canvas class="pl-canvas" id="pl-canvas" aria-hidden="true"></canvas>
+  <div class="pl-shade" aria-hidden="true"></div>
+
+  <div class="pl" id="pl">
+    <header class="pl-top">
+      <a class="logo" href="index.html" aria-label="AURA, strona główna">AURA <span class="logo__slash">/</span></a>
+      <span class="pl-top__venue">Kawiarnia Ziarno · Kraków</span>
+      <span class="pl-top__spacer"></span>
+      <span class="pl-top__conn"><i class="live__dot"></i><span id="pl-conn">Połączono</span></span>
+      <time class="pl-top__clock" id="pl-clock">--:--</time>
+      <a href="index.html#licencja">Licencja <span data-ui-icon="external" data-size="16"></span></a>
+    </header>
+
+    <main class="pl-main">
+      <section class="pl-now" aria-label="Teraz gra">
+        <p class="label" id="pl-index">Kanał 01 / 07</p>
+        <h1 class="pl-name" id="pl-name">Ambient</h1>
+        <p class="pl-mood" id="pl-mood"></p>
+        <div class="pl-track">
+          <div class="pl-track__row">
+            <span class="pl-track__title" id="pl-title" aria-live="polite">Gotowy do odtwarzania</span>
+            <span class="pl-track__time" id="pl-time">00:00 / 00:00</span>
+          </div>
+          <div class="pl-progress" aria-hidden="true"><i id="pl-progress"></i></div>
+        </div>
+        <button class="pl-play" id="pl-play" type="button" aria-label="Odtwórz (spacja)">
+          <span data-ui-icon="play" data-size="48"></span>
+        </button>
+      </section>
+
+      <nav class="pl-channels" id="pl-channels" aria-label="Kanały (klawisze 1–7)"></nav>
+    </main>
+
+    <footer class="pl-bottom">
+      <button class="pl-mute" id="pl-mute" type="button" aria-pressed="false" aria-label="Wycisz (M)">
+        <span data-ui-icon="volume" data-size="22"></span>
+      </button>
+      <div class="pl-vol">
+        <label class="sr" for="pl-volume">Głośność</label>
+        <input class="range" id="pl-volume" type="range" min="0" max="100" step="1" value="80">
+        <output id="pl-vol-out" for="pl-volume">80%</output>
+      </div>
+      <p class="pl-meta"><b>Losowo</b> · bez powtórzeń · <span id="pl-status" aria-live="polite">Gotowy</span></p>
+    </footer>
+  </div>
+
+  <!-- Stany -->
+  <div class="overlay" id="ov-idle" role="dialog" aria-modal="true" aria-labelledby="ov-idle-t">
+    <div class="ov">
+      <p class="label ov__status"><i class="live__dot"></i>Status / Gotowy</p>
+      <button class="ov__start" type="button" id="ov-start" aria-describedby="ov-idle-d">
+        <span data-ui-icon="play" data-size="64"></span>
+      </button>
+      <h2 class="ov__title" id="ov-idle-t">Dotknij, aby zacząć</h2>
+      <p class="ov__text" id="ov-idle-d">Muzyka ruszy od kanału <span id="ov-idle-ch">01 / Ambient</span>. Przeglądarka wymaga jednego dotknięcia, zanim zagra dźwięk.</p>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-loading" role="status" aria-live="polite">
+    <div class="ov">
+      <p class="label ov__status">Status / Ładowanie</p>
+      <div class="loader"><i></i></div>
+      <p class="ov__text" id="ov-loading-t">Łączę z katalogiem…</p>
+      <div class="skel" aria-hidden="true"><i style="width:180px"></i><i style="width:120px"></i></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-elsewhere" role="dialog" aria-modal="true" aria-labelledby="ov-else-t">
+    <div class="ov">
+      <p class="label ov__status">Status / Inne urządzenie</p>
+      <h2 class="ov__title" id="ov-else-t">Ten link gra teraz na innym urządzeniu</h2>
+      <div class="ov__device">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M11 18h2"/></svg>
+        <span>iPad · Safari<small>gra od 08:12 · kanał 04 / Chillout</small></span>
+      </div>
+      <p class="ov__text">Jeden link może grać na jednym urządzeniu naraz. Jeśli przejmiesz odtwarzanie, tamto urządzenie się zatrzyma.</p>
+      <div class="ov__actions">
+        <button class="btn btn--solid" type="button" id="ov-takeover">Odtwarzaj tutaj</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="ov-inactive" role="dialog" aria-modal="true" aria-labelledby="ov-inact-t">
+    <div class="ov">
+      <p class="label ov__status">Status / Dostęp nieaktywny</p>
+      <h2 class="ov__title" id="ov-inact-t">Dostęp nieaktywny</h2>
+      <p class="ov__text">Subskrypcja dla lokalu Kawiarnia Ziarno wygasła 12.09.2026. Odnów ją, a ten sam link zacznie znowu działać.</p>
+      <div class="ov__actions">
+        <a class="btn btn--solid" href="index.html#cennik">Odnów dostęp</a>
+        <a class="btn" href="mailto:kontakt@auramuzyka.pl">Napisz do nas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner" id="bn-offline" role="status" aria-live="polite">
+    <span class="banner__dot" aria-hidden="true"></span>
+    <span><span id="bn-text">Brak internetu, ponawiam za 3 s</span><br><small id="bn-sub">Gra z bufora, zostało ok. 04:00</small></span>
+    <button class="btn" type="button" id="bn-retry">Ponów</button>
+  </div>
+
+  <!-- Panel prototypu: nie wchodzi do produktu -->
+  <button class="proto-toggle" id="proto-toggle" type="button" aria-expanded="false" aria-controls="proto">Prototyp · D</button>
+  <div class="proto" id="proto" hidden role="region" aria-label="Panel prototypu">
+    <p class="proto__tag">Element prototypu · stany ekranu</p>
+    <p class="proto__hint">Do prezentacji. Klawisz D otwiera i zamyka panel.</p>
+    <div class="proto__grid" id="proto-states">
+      <button type="button" data-state="idle"><span>01</span>Bezczynny</button>
+      <button type="button" data-state="loading"><span>02</span>Ładowanie</button>
+      <button type="button" data-state="playing"><span>03</span>Odtwarzanie</button>
+      <button type="button" data-state="paused"><span>04</span>Pauza</button>
+      <button type="button" data-state="elsewhere"><span>05</span>Inne urządzenie</button>
+      <button type="button" data-state="inactive"><span>06</span>Dostęp nieaktywny</button>
+      <button type="button" data-state="offline"><span>07</span>Brak internetu</button>
+    </div>
+    <div class="proto__row">
+      <button type="button" id="proto-next">Następny utwór</button>
+      <button type="button" id="proto-close">Zamknij</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/profiles.js" defer></script>
+  <script src="js/audio.js" defer></script>
+  <script src="js/visual.js" defer></script>
+  <script src="js/player.js" defer></script>
+</body>
+</html>
