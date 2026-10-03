@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AURA · Panel</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0B0B0C">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261004b">
+</head>
+<body class="page-admin">
+  <!-- Panel właściciela AURA (atrapa: dane tylko w tej przeglądarce, nic nie jest wysyłane) -->
+
+  <!-- Logowanie do panelu: jedno pole hasła (prototyp: „test”) -->
+  <main class="admin-login" id="admin-login">
+    <form class="admin-login__card" id="login-form" novalidate>
+      <p class="logo">AURA <span class="logo__slash">/</span></p>
+      <h1 class="h3">Panel</h1>
+      <label class="field"><span class="label">Hasło</span><input type="password" name="password" autocomplete="current-password" required></label>
+      <p class="admin-login__error" id="login-error" role="alert" hidden>Nieprawidłowe hasło</p>
+      <button class="btn btn--solid btn--block" type="submit">Wejdź</button>
+    </form>
+  </main>
+
+  <div class="admin" id="admin" hidden>
+    <header class="admin__top">
+      <div class="shell admin__top-inner">
+        <a class="logo" href="index.html" aria-label="AURA, strona główna">AURA <span class="logo__slash">/</span></a>
+        <span class="label admin__title">Panel</span>
+        <span class="admin__spacer"></span>
+        <span class="proto-tag">Atrapa: dane tylko w&nbsp;tej przeglądarce</span>
+      </div>
+    </header>
+
+    <main class="shell admin__main">
+      <section class="admin__new" aria-labelledby="new-title">
+        <h2 class="h3" id="new-title">Nowy link</h2>
+        <form class="admin__form" id="new-form" novalidate>
+          <label class="field"><span class="label">Nazwa lokalu</span><input type="text" name="venue" autocomplete="off" placeholder="Kawiarnia Ziarno" required></label>
+          <label class="field"><span class="label">E-mail</span><input type="text" inputmode="email" name="email" autocomplete="off" placeholder="kawiarnia@przyklad.pl" required></label>
+          <button class="btn btn--solid" type="submit">Utwórz link</button>
+        </form>
+        <div class="admin__created" id="created" hidden>
+          <p class="label">Link dla <span id="created-venue"></span></p>
+          <div class="admin__created-row">
+            <input class="thanks__url" id="created-url" type="text" readonly aria-label="Nowy link do odtwarzacza">
+            <button class="btn btn--sm" type="button" id="created-copy">Kopiuj</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin__list" aria-labelledby="list-title">
+        <div class="admin__list-head">
+          <h2 class="h3" id="list-title">Linki</h2>
+          <span class="label" id="list-count"></span>
+        </div>
+        <div class="admin-table" role="table" aria-label="Linki do odtwarzacza">
+          <div class="admin-row admin-row--head" role="row">
+            <span role="columnheader">Lokal</span>
+            <span role="columnheader">E-mail</span>
+            <span role="columnheader">Link</span>
+            <span role="columnheader">Status</span>
+            <span role="columnheader">Utworzono</span>
+            <span role="columnheader"><span class="sr">Akcja</span></span>
+          </div>
+          <div id="rows" role="rowgroup"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/links.js?v=20261004b" defer></script>
+  <script src="js/admin.js?v=20261004b" defer></script>
+</body>
+</html>
