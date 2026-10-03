@@ -1,7 +1,6 @@
 /* AURA · odtwarzacz dla lokalu (player.html)
  *
- * Widoki: idle → loading → playing ⇄ paused, oraz elsewhere (link gra na innym urządzeniu)
- * i inactive (dostęp nieaktywny). „Brak internetu” to niezależna flaga z banerem:
+ * Widoki: idle → loading → playing ⇄ paused oraz inactive (dostęp nieaktywny). „Brak internetu” to niezależna flaga z banerem:
  * muzyka gra dalej z bufora, odtwarzacz sam ponawia połączenie.
  * Klawisze: spacja play/pauza · 1–7 kanał · M wycisz · ↑/↓ głośność · N następny · D panel prototypu
  */
@@ -33,7 +32,7 @@
   const nav = $('#pl-channels');
   nav.innerHTML = profiles.map((p, i) => `
     <button class="pl-ch" type="button" data-slug="${p.slug}" aria-pressed="false" style="--ch-accent:${p.accent}"
-      aria-label="${p.n} ${p.name} (klawisz ${i + 1})">
+      aria-label="Playlista ${p.n} ${p.name} (klawisz ${i + 1})">
       <span class="pl-ch__n">${p.n}</span>
       <span class="pl-ch__icon">${window.AURA.profileIcon(p, 28)}</span>
       <span class="pl-ch__name">${p.name}</span>
@@ -50,11 +49,11 @@
     const p = bySlug[S.slug];
     window.AURA.applyAccent(p);
     $$('.pl-ch', nav).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.slug === S.slug)));
-    $('#ov-idle-ch').textContent = p.n + ' / ' + p.name;
+    $('#ov-idle-ch').textContent = p.name;
     const name = $('#pl-name');
     const apply = () => {
       name.textContent = p.name;
-      $('#pl-index').textContent = 'Kanał ' + p.n + ' / 07 · ' + p.bpm + ' BPM';
+      $('#pl-index').textContent = 'Playlista ' + p.n + ' / 07 · ' + p.bpm + ' BPM';
       $('#pl-mood').textContent = p.mood;
       name.classList.remove('is-swap');
     };
@@ -63,29 +62,29 @@
   }
 
   function selectChannel(slug) {
-    if (S.view === 'elsewhere' || S.view === 'inactive' || S.view === 'loading') return;
+    if (S.view === 'inactive' || S.view === 'subscribe' || S.view === 'loading') return;
     if (slug === S.slug && A.slug === slug) { if (S.view === 'paused') togglePlay(); return; }
     S.slug = slug;
     store.set('slug', slug);
     renderProfile(true);
     vis.setProfile(bySlug[slug]);
     if (S.view === 'idle') { start(); return; }
-    $('#pl-title').textContent = 'Przełączam…';
+    $('#pl-title').textContent = 'Zmieniam playlistę…';
     A.play(slug, playOpts(slug));
     setView('playing');
   }
 
   /* ---------- widoki ---------- */
-  const overlays = { idle: '#ov-idle', loading: '#ov-loading', elsewhere: '#ov-elsewhere', inactive: '#ov-inactive' };
+  const overlays = { idle: '#ov-idle', loading: '#ov-loading', inactive: '#ov-inactive', subscribe: '#ov-subscribe' };
 
   function setView(v) {
     S.view = v;
     body.dataset.state = v;
     Object.entries(overlays).forEach(([k, sel]) => $(sel).classList.toggle('is-on', k === v));
-    $('#pl').inert = v === 'idle' || v === 'elsewhere' || v === 'inactive';
+    $('#pl').inert = v === 'idle' || v === 'inactive' || v === 'subscribe';
 
     if (v === 'idle') { A.stop(); $('#pl-title').textContent = 'Gotowy do odtwarzania'; }
-    if (v === 'paused' || v === 'elsewhere' || v === 'inactive' || v === 'loading') { if (A.state === 'playing') A.pause(); }
+    if (v === 'paused' || v === 'inactive' || v === 'subscribe' || v === 'loading') { if (A.state === 'playing') A.pause(); }
     if (v === 'playing' && A.state === 'paused') A.resume();
 
     vis.setMode(v === 'playing' ? 'playing' : v === 'paused' ? 'paused' : v === 'idle' || v === 'loading' ? 'idle' : 'off');
@@ -94,10 +93,9 @@
     const btn = $('#pl-play');
     btn.innerHTML = window.AURA.uiIcon(playing ? 'pause' : 'play', 48);
     btn.setAttribute('aria-label', (playing ? 'Pauza' : 'Odtwórz') + ' (spacja)');
-    $('#pl-status').textContent = { idle: 'Gotowy', loading: 'Ładowanie', playing: 'Na żywo', paused: 'Pauza', elsewhere: 'Inne urządzenie', inactive: 'Nieaktywny' }[v];
 
     if (v === 'idle') setTimeout(() => $('#ov-start').focus(), 50);
-    if (v === 'elsewhere') setTimeout(() => $('#ov-takeover').focus(), 50);
+    if (v === 'subscribe') { $('#sub-pay').hidden = false; $('#sub-wait').hidden = true; setTimeout(() => $('#sub-pay-btn').focus(), 50); }
     if (playing) { wake(true); uiLoop(); } else wake(false);
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = playing ? 'playing' : v === 'paused' ? 'paused' : 'none';
     syncProto();
@@ -106,7 +104,7 @@
   // Start z gestu użytkownika: ładowanie → odtwarzanie (min. 900 ms, żeby stan był czytelny)
   function start(loadingText) {
     A.unlock();
-    $('#ov-loading-t').textContent = loadingText || 'Łączę z katalogiem…';
+    $('#ov-loading-t').textContent = loadingText || 'Ładuję muzykę…';
     setView('loading');
     const t0 = performance.now();
     const go = A.slug === S.slug && A.state === 'paused'
@@ -125,7 +123,6 @@
   $('#pl-play').addEventListener('click', togglePlay);
   $('#ov-start').addEventListener('click', () => start());
   $('#ov-idle').addEventListener('click', (e) => { if (e.target.id === 'ov-idle') start(); });
-  $('#ov-takeover').addEventListener('click', () => { toast('Przejęto odtwarzanie. Tamto urządzenie się zatrzymało.'); start('Przejmuję odtwarzanie…'); });
 
   /* ---------- utwór i postęp ---------- */
   A.on('track', (t) => {
@@ -192,15 +189,14 @@
     S.offline = on;
     body.dataset.offline = String(on);
     $('#bn-offline').classList.toggle('is-on', on);
-    $('#pl-conn').textContent = on ? 'Brak połączenia' : 'Połączono';
     clearInterval(offTimer);
     if (on) {
       const backoff = [3, 5, 10];
       let attempt = 0, left = backoff[0], buffer = 240;
       const text = $('#bn-text'), sub = $('#bn-sub');
       const render = () => {
-        text.textContent = left > 0 ? 'Brak internetu, ponawiam za ' + left + ' s' : 'Ponawiam połączenie…';
-        sub.textContent = buffer > 0 ? 'Gra z bufora, zostało ok. ' + fmt(buffer) : 'Bufor pusty. Wznowię sam po powrocie sieci.';
+        text.textContent = left > 0 ? 'Brak internetu. Kolejna próba za ' + left + ' s' : 'Próbuję połączyć ponownie…';
+        sub.textContent = buffer > 0 ? 'Muzyka gra z zapasu jeszcze ok. ' + fmt(buffer) : 'Zapas się skończył. Odtwarzacz wznowi muzykę, gdy wróci internet.';
       };
       render();
       offTimer = setInterval(() => {
@@ -216,13 +212,51 @@
     syncProto();
   }
   $('#bn-retry').addEventListener('click', () => {
-    $('#bn-text').textContent = 'Ponawiam połączenie…';
+    $('#bn-text').textContent = 'Próbuję połączyć ponownie…';
     if (navigator.onLine && !S.simOffline) setOffline(false);
   });
   window.addEventListener('offline', () => setOffline(true));
   window.addEventListener('online', () => { if (!S.simOffline) setOffline(false); });
 
-  /* ---------- panel prototypu ---------- */
+  /* ---------- Moje konto (atrapa) ---------- */
+  const account = $('#account');
+  $('#pl-account').addEventListener('click', () => account.showModal());
+  account.addEventListener('click', (e) => {
+    if (e.target === account || e.target.closest('[data-close]')) account.close();
+    const t = e.target.closest('[data-toggle]');
+    if (t) {
+      const el = $('#' + t.dataset.toggle);
+      el.hidden = !el.hidden;
+      if (!el.hidden) { const f = $('input', el); if (f) f.focus(); }
+    }
+  });
+  function accountSubmit(form, onOk) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // prototyp: nic nie jest wysyłane
+      let ok = true;
+      $$('input[required]', form).forEach((i) => {
+        const bad = !i.checkValidity() || !i.value.trim();
+        i.closest('.field').classList.toggle('is-invalid', bad);
+        if (bad && ok) { i.focus(); ok = false; }
+      });
+      if (!ok) return;
+      onOk(form);
+      form.reset();
+      form.hidden = true;
+      toast('Zapisano');
+    });
+  }
+  accountSubmit($('#acc-email-form'), (f) => { $('#acc-email').textContent = f.email.value.trim(); });
+  accountSubmit($('#acc-pass-form'), () => {});
+  $('#acc-cancel-yes').addEventListener('click', () => {
+    $('#acc-sub').textContent = 'Anulowany · aktywny do 31.10.2026';
+    $('#acc-sub-note').textContent = 'Nie pobierzemy kolejnej płatności.';
+    $('#acc-cancel').hidden = true;
+    $('[data-toggle="acc-cancel"]').hidden = true;
+    toast('Abonament anulowany');
+  });
+
+  /* ---------- panel „Dodatkowe podglądy” (przycisk w prawym dolnym rogu lub klawisz D) ---------- */
   const proto = $('#proto'), protoBtn = $('#proto-toggle');
   function toggleProto(open) {
     open = open == null ? proto.hidden : open;
@@ -238,7 +272,7 @@
   }
   protoBtn.addEventListener('click', () => toggleProto());
   $('#proto-close').addEventListener('click', () => { toggleProto(false); protoBtn.focus(); });
-  $('#proto-next').addEventListener('click', () => { if (A.slug) { A.next(); toast('Następny utwór (crossfade)'); } });
+  $('#proto-next').addEventListener('click', () => { if (A.slug) { A.next(); toast('Następny utwór'); } });
   $('#proto-states').addEventListener('click', (e) => {
     const b = e.target.closest('button');
     if (!b) return;
@@ -249,24 +283,25 @@
       if (!A.slug) start().then(() => setView('paused')); else setView('paused');
       return;
     }
-    if (st === 'loading') { A.unlock(); $('#ov-loading-t').textContent = 'Łączę z katalogiem…'; }
+    if (st === 'loading') { A.unlock(); $('#ov-loading-t').textContent = 'Ładuję muzykę…'; }
     setView(st);
   });
 
   /* ---------- klawiatura ---------- */
   document.addEventListener('keydown', (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (account.open) return; // przy otwartym oknie konta klawisze odtwarzacza nie działają
     const onRange = e.target === vol;
     const k = e.key.toLowerCase();
     if (k === 'd') { toggleProto(); return; }
     if (k === 'escape' && !proto.hidden) { toggleProto(false); return; }
     if (e.key === ' ' || e.code === 'Space') {
       e.preventDefault();
-      if (S.view === 'elsewhere' || S.view === 'inactive') return;
+      if (S.view === 'inactive' || S.view === 'subscribe') return;
       togglePlay();
       return;
     }
-    if (S.view === 'elsewhere' || S.view === 'inactive') return;
+    if (S.view === 'inactive' || S.view === 'subscribe') return;
     if (/^[1-7]$/.test(e.key)) { selectChannel(profiles[+e.key - 1].slug); return; }
     if (k === 'm') { setMute(!A.muted); return; }
     if (k === 'n' && A.slug) { A.next(); return; }
@@ -307,10 +342,23 @@
     toastT = setTimeout(() => toastEl.classList.remove('is-on'), 2600);
   }
 
+  /* ---------- opłacenie abonamentu (nowe konto) ---------- */
+  try {
+    const company = sessionStorage.getItem('aura.company');
+    if (company) $('#sub-company').textContent = company;
+  } catch (e) { /* brak dostępu */ }
+  // Prototyp: płatność otwiera się w nowej karcie (Stripe), po powrocie przycisk włącza odtwarzacz
+  $('#sub-pay-btn').addEventListener('click', () => { $('#sub-pay').hidden = true; $('#sub-wait').hidden = false; $('#sub-done').focus(); });
+  $('#sub-done').addEventListener('click', () => {
+    if (location.search) history.replaceState(null, '', 'player.html');
+    toast('Abonament aktywny. Możesz włączyć muzykę.');
+    setView('idle');
+  });
+
   /* ---------- start ---------- */
   renderProfile(false);
   vis.setProfile(bySlug[S.slug], true);
-  setView('idle');
+  setView(new URLSearchParams(location.search).get('krok') === 'abonament' ? 'subscribe' : 'idle');
   if (!navigator.onLine) setOffline(true);
   A.init();
 })();

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>AURA · Muzyka tła dla lokali · Każda przestrzeń ma swój rytm</title>
-  <meta name="description" content="Instrumentalna muzyka tła dla kawiarni, salonów, gabinetów, butików i hoteli. Siedem profili, jeden link, legalnie w lokalu. 149 zł netto miesięcznie, 14 dni za darmo.">
+  <title>AURA · Muzyka dla kawiarni, salonów i gabinetów</title>
+  <meta name="description" content="Instrumentalna muzyka dla lokali usługowych. 7 playlist, ponad 75 utworów, bez reklam. Działa w przeglądarce na telefonie, tablecie i komputerze. 69 zł brutto miesięcznie za wszystkie lokale firmy.">
   <meta name="theme-color" content="#0B0B0C">
   <link rel="icon" href="favicon.ico" sizes="32x32">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=20261003j">
   <script>document.documentElement.classList.add('js')</script>
 </head>
 <body class="page-landing">
@@ -31,8 +31,8 @@
         <a href="#faq">FAQ</a>
       </nav>
       <div class="nav__actions">
-        <a class="nav__player" href="player.html">Odtwarzacz</a>
-        <button class="btn btn--solid btn--sm" type="button" data-open-checkout>Wypróbuj 14 dni</button>
+        <button class="nav__player" type="button" data-open-auth data-tab="login">Zarejestruj / Zaloguj</button>
+        <button class="btn btn--solid btn--sm" type="button" data-listen>Posłuchaj przykładów</button>
         <button class="nav__menu" type="button" aria-expanded="false" aria-controls="menu" id="menu-toggle">
           <span class="nav__burger" aria-hidden="true"><i></i><i></i></span>
           <span class="nav__menu-label">Menu</span>
@@ -43,7 +43,7 @@
 
   <div class="menu" id="menu" hidden>
     <nav class="shell menu__inner" aria-label="Menu mobilne">
-      <p class="label">Nawigacja / AURA</p>
+      <p class="label">Menu</p>
       <ol class="menu__list">
         <li><a href="#posluchaj"><span class="idx">01</span>Posłuchaj</a></li>
         <li><a href="#jak-to-dziala"><span class="idx">02</span>Jak to działa</a></li>
@@ -54,8 +54,8 @@
         <li><a href="#faq"><span class="idx">07</span>FAQ</a></li>
       </ol>
       <div class="menu__foot">
-        <button class="btn btn--solid" type="button" data-open-checkout>Wypróbuj 14 dni</button>
-        <a class="btn" href="player.html">Otwórz odtwarzacz</a>
+        <button class="btn btn--solid" type="button" data-listen>Posłuchaj przykładów</button>
+        <button class="btn" type="button" data-open-auth data-tab="login">Zarejestruj / Zaloguj</button>
       </div>
     </nav>
   </div>
@@ -66,53 +66,49 @@
       <canvas class="hero__canvas" id="hero-canvas" aria-hidden="true"></canvas>
       <div class="hero__shade" aria-hidden="true"></div>
       <div class="shell hero__inner">
-        <p class="label hero__eyebrow"><span class="idx">00</span> / Muzyka tła dla lokali usługowych</p>
-        <h1 class="display hero__title" id="hero-title">Muzyka<span class="slash" aria-hidden="true">/</span> <span class="hero__title-sub">dla Twojego miejsca.</span></h1>
+        <h1 class="display hero__title" id="hero-title">Muzyka<span class="slash" aria-hidden="true">/</span> <span class="hero__title-sub">dla lokali usługowych.</span></h1>
         <div class="hero__copy">
-          <p class="hero__claim">Każda przestrzeń ma swój rytm.</p>
-          <p class="lead">Siedem kanałów instrumentalnej muzyki dla kawiarni, salonów i gabinetów. Wybierasz nastrój raz. Resztą zajmuje się AURA.</p>
+          <p class="hero__claim">Instrumentalna muzyka do kawiarni, salonu, gabinetu i&nbsp;sklepu.</p>
+          <p class="lead">Otwierasz link na tablecie, telefonie albo komputerze, wybierasz jedną z&nbsp;playlist i&nbsp;muzyka gra przez cały dzień. Nie trzeba instalować aplikacji i&nbsp;nie ma reklam.</p>
           <div class="hero__cta">
-            <button class="btn btn--solid" type="button" id="hero-listen">
-              <span class="btn__icon" data-ui-icon="play"></span>Posłuchaj
+            <button class="btn btn--solid" type="button" data-listen>
+              <span class="btn__icon" data-ui-icon="play"></span>Posłuchaj przykładów
             </button>
-            <button class="btn" type="button" data-open-checkout>Wypróbuj 14 dni</button>
+            <button class="btn" type="button" data-open-auth data-tab="register">Zarejestruj się</button>
           </div>
         </div>
 
-        <aside class="status" aria-label="Status systemu AURA">
+        <aside class="status" aria-label="Podgląd odtwarzacza">
           <div class="status__head">
-            <span class="label">System / Status</span>
-            <span class="live" id="hero-live"><i class="live__dot"></i><span id="hero-live-text">Gotowy</span></span>
+            <span class="label">Odtwarzacz</span>
+            <button class="status__play" type="button" id="hero-play" aria-label="Odtwórz losowy przykład"><span data-ui-icon="play" data-size="16"></span><span id="hero-play-text">Odtwórz</span></button>
           </div>
           <dl class="status__rows">
-            <div><dt>Kanał</dt><dd id="st-channel">—</dd></div>
-            <div><dt>Sygnał</dt><dd><span class="meter" id="st-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="st-db">−∞ dB</span></dd></div>
-            <div><dt>Kanały</dt><dd>07</dd></div>
-            <div><dt>Utwory</dt><dd>525+</dd></div>
-            <div><dt>Wokale</dt><dd>0</dd></div>
-            <div><dt>Czas lokalny</dt><dd id="st-clock">--:--:--</dd></div>
+            <div><dt>Playlista</dt><dd id="st-channel">—</dd></div>
+            <div><dt>Poziom dźwięku</dt><dd><span class="meter" id="st-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="st-db">−∞ dB</span></dd></div>
+            <div><dt>Playlisty</dt><dd>7</dd></div>
+            <div><dt>Utwory</dt><dd>75+</dd></div>
+            <div><dt>Wokal</dt><dd>brak</dd></div>
+            <div><dt>Godzina</dt><dd id="st-clock">--:--:--</dd></div>
           </dl>
         </aside>
       </div>
-      <a class="hero__scroll label" href="#posluchaj">Przewiń <span aria-hidden="true">↓</span></a>
     </section>
 
-    <!-- 3. Demo -->
+    <!-- 3. Posłuchaj -->
     <section class="section demo" id="posluchaj" aria-labelledby="demo-title">
       <div class="shell">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">01</span> / Posłuchaj</p>
-          <h2 class="h2" id="demo-title">Siedem kanałów.<br><span class="muted">Jeden dotyk.</span></h2>
-          <p class="lead">Każdy kanał to spójny profil brzmienia, dobrany do typu lokalu. Kliknij, żeby posłuchać próbki. Przejście między kanałami trwa półtorej sekundy, bez ciszy i trzasków.</p>
+          <h2 class="h2 h2--line" id="demo-title">Posłuchaj przykładów</h2>
+          <p class="lead">Posłuchaj po jednym przykładowym utworze z&nbsp;5 playlist.</p>
         </header>
 
         <div class="demo__grid">
           <div class="panel reveal">
             <div class="panel__head" aria-hidden="true">
-              <span>Nr / Kanał</span><span>Miejsca</span><span>Tempo</span><span>Utwory</span><span>Status</span>
+              <span>Playlista</span><span>Lokale</span><span>Tempo</span><span>Status</span>
             </div>
-            <ol class="channels" id="channels" aria-label="Kanały AURA"></ol>
-            <p class="panel__foot label"><span>Próbki demo · 30–60 s</span><span id="panel-hint">Wybierz kanał</span></p>
+            <ol class="channels" id="channels" aria-label="Playlisty AURA: przykładowe utwory"></ol>
           </div>
 
           <figure class="device reveal" aria-label="Podgląd odtwarzacza na tablecie">
@@ -122,24 +118,25 @@
                 <div class="device__ui">
                   <div class="device__top">
                     <span class="device__logo">AURA /</span>
-                    <span class="device__venue">Kawiarnia Ziarno</span>
-                    <span class="device__live"><i class="live__dot"></i>Na żywo</span>
+                    <span class="device__venue"></span>
+                    <span class="device__live"><i class="live__dot"></i><span id="dv-live">Gotowy</span></span>
                   </div>
                   <div class="device__now">
-                    <span class="device__idx" id="dv-idx">01 / 07</span>
+                    <span class="device__idx" id="dv-idx">01 / 05</span>
                     <span class="device__name" id="dv-name">Ambient</span>
-                    <span class="device__track" id="dv-track">Dotknij, aby zacząć</span>
+                    <span class="device__track" id="dv-track">Dotknij, aby posłuchać przykładu</span>
+                    <span class="device__timer" id="dv-timer" hidden>Odsłuch: <b>02:00</b></span>
                   </div>
-                  <button class="device__play" type="button" id="dv-play" aria-label="Odtwórz">
+                  <button class="device__play" type="button" id="dv-play" aria-label="Odtwórz przykład">
                     <span data-ui-icon="play"></span>
                   </button>
                   <div class="device__dots" id="dv-dots" aria-hidden="true"></div>
                 </div>
               </div>
             </div>
-            <figcaption class="device__caption">
-              <span class="label">Podgląd / Odtwarzacz w lokalu</span>
-              <a class="link-arrow" href="player.html">Otwórz pełny ekran <span data-ui-icon="arrow"></span></a>
+            <figcaption class="device__cta">
+              <p>Zarejestruj się i&nbsp;opłać abonament, aby uzyskać dostęp do pełnej biblioteki muzycznej i&nbsp;odtwarzacza.</p>
+              <button class="btn btn--solid" type="button" data-open-auth data-tab="register">Zarejestruj się</button>
             </figcaption>
           </figure>
         </div>
@@ -150,29 +147,29 @@
     <section class="section steps" id="jak-to-dziala" aria-labelledby="steps-title">
       <div class="shell">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">02</span> / Jak to działa</p>
-          <h2 class="h2" id="steps-title">Trzy kroki.<br><span class="muted">Potem już tylko gra.</span></h2>
+          <h2 class="h2" id="steps-title">Jak to działa</h2>
         </header>
         <ol class="steps__list">
           <li class="step reveal">
             <span class="step__n">01</span>
-            <svg class="step__art" viewBox="0 0 120 64" aria-hidden="true"><rect x="10" y="12" width="64" height="40" rx="4"/><path d="M10 22h64M20 42h18"/><path d="M84 32h26M100 22l10 10-10 10"/></svg>
-            <h3 class="h3">Wykup dostęp</h3>
-            <p>Płacisz online. Po chwili dostajesz e-mailem link do odtwarzacza swojego lokalu i fakturę.</p>
+            <svg class="step__art" viewBox="0 0 120 64" aria-hidden="true"><circle cx="42" cy="22" r="10"/><path d="M24 54c2-11 9-17 18-17s16 6 18 17"/><path d="M84 32h26M100 22l10 10-10 10"/></svg>
+            <h3 class="h3">Zarejestruj się</h3>
+            <p>Zakładasz konto. Wystarczy e-mail i&nbsp;hasło.</p>
           </li>
           <li class="step reveal">
             <span class="step__n">02</span>
-            <svg class="step__art" viewBox="0 0 120 64" aria-hidden="true"><rect x="30" y="6" width="60" height="44" rx="5"/><path d="M52 58h16M60 50v8"/><path d="M44 28h32"/><path d="M68 22l8 6-8 6"/></svg>
-            <h3 class="h3">Otwórz link w lokalu</h3>
-            <p>Na tablecie, telefonie albo komputerze podłączonym do głośników. Bez instalacji i bez logowania.</p>
+            <svg class="step__art" viewBox="0 0 120 64" aria-hidden="true"><rect x="10" y="12" width="64" height="40" rx="4"/><path d="M10 22h64M20 42h18"/><path d="M84 32h26M100 22l10 10-10 10"/></svg>
+            <h3 class="h3">Opłać abonament</h3>
+            <p>69 zł brutto miesięcznie. Jeden abonament obejmuje wszystkie lokale Twojej firmy. Możesz go anulować w&nbsp;dowolnym momencie.</p>
           </li>
           <li class="step reveal">
             <span class="step__n">03</span>
-            <svg class="step__art" viewBox="0 0 120 64" aria-hidden="true"><circle cx="60" cy="32" r="24"/><circle cx="60" cy="32" r="3"/><path d="M60 32l12-12"/><path d="M36 32h-8M92 32h-8M60 8V2"/></svg>
-            <h3 class="h3">Wybierz profil</h3>
-            <p>Jeden dotyk. Muzyka gra cały dzień, losowo, bez powtórzeń i bez reklam.</p>
+            <svg class="step__art" viewBox="0 0 120 64" aria-hidden="true"><rect x="30" y="6" width="60" height="44" rx="5"/><path d="M52 58h16M60 50v8"/><path d="M44 28h32"/><path d="M68 22l8 6-8 6"/></svg>
+            <h3 class="h3">Wybierz playlistę</h3>
+            <p>Logujesz się w&nbsp;odtwarzaczu na tablecie, telefonie albo komputerze podłączonym do głośników, bez instalowania aplikacji. Muzyka gra przez cały dzień, a&nbsp;utwory nie powtarzają się, dopóki nie przejdzie cała playlista.</p>
           </li>
         </ol>
+        <p class="steps__note reveal">Po zalogowaniu pobierzesz też potwierdzenie licencji w&nbsp;PDF.</p>
       </div>
     </section>
 
@@ -180,48 +177,46 @@
     <section class="section why" id="dlaczego" aria-labelledby="why-title">
       <div class="shell">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">03</span> / Dlaczego AURA</p>
-          <h2 class="h2" id="why-title">Mniej wyboru.<br><span class="muted">Lepsze tło.</span></h2>
-          <p class="lead">Klient ma czuć, że miejsce ma charakter. Nie powinien słyszeć, że ktoś przeskakuje między playlistami.</p>
+          <h2 class="h2" id="why-title">Dlaczego AURA</h2>
+          <p class="lead">Nie musisz przeglądać setek playlist ani pilnować, co gra. Włączasz jedną playlistę i&nbsp;zostawiasz ją na cały dzień. Cała muzyka jest instrumentalna, więc w&nbsp;tle nie ma śpiewu ani tekstów.</p>
         </header>
 
         <div class="compare reveal" role="table" aria-label="Porównanie: zwykłe playlisty i AURA">
           <div class="compare__row compare__row--head" role="row">
-            <span role="columnheader" class="label">Parametr</span>
+            <span role="columnheader" class="label"></span>
             <span role="columnheader" class="label">Zwykłe playlisty</span>
-            <span role="columnheader" class="label compare__aura">AURA /</span>
+            <span role="columnheader" class="label compare__aura">AURA</span>
           </div>
-          <div class="compare__row" role="row"><span role="rowheader">Wybór</span><span role="cell">Setki playlist do przejrzenia</span><span role="cell">7 profili dobranych do typów lokali</span></div>
-          <div class="compare__row" role="row"><span role="rowheader">Katalog</span><span role="cell">Różne źródła, różna jakość</span><span role="cell">Własny katalog instrumentalny</span></div>
-          <div class="compare__row" role="row"><span role="rowheader">Wokale</span><span role="cell">Teksty, które konkurują z rozmową</span><span role="cell">Wyłącznie instrumentalnie</span></div>
-          <div class="compare__row" role="row"><span role="rowheader">Brzmienie</span><span role="cell">Skoki stylu i głośności</span><span role="cell">Spójna estetyka, wyrównana głośność</span></div>
-          <div class="compare__row" role="row"><span role="rowheader">Obsługa</span><span role="cell">Aplikacja, konto, aktualizacje</span><span role="cell">Jeden link w przeglądarce</span></div>
-          <div class="compare__row" role="row"><span role="rowheader">Marka</span><span role="cell">Zagraniczny serwis</span><span role="cell">Polska marka, polska faktura</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Wybór muzyki</span><span role="cell">Setki playlist, trzeba samemu wybrać</span><span role="cell">7 playlist z&nbsp;podpowiedzią, do jakich lokali pasują</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Wokal</span><span role="cell">Często utwory ze śpiewem</span><span role="cell">Tylko muzyka instrumentalna</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Styl</span><span role="cell">Na jednej liście bywają różne style</span><span role="cell">Jeden styl na każdej playliście</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Skąd muzyka</span><span role="cell">Różne źródła</span><span role="cell">Własny katalog AURA</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Reklamy</span><span role="cell">Zależnie od serwisu i&nbsp;planu</span><span role="cell">Brak reklam</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Obsługa</span><span role="cell">Zwykle aplikacja do zainstalowania</span><span role="cell">Odtwarzacz w&nbsp;przeglądarce, bez instalacji</span></div>
+          <div class="compare__row" role="row"><span role="rowheader">Marka</span><span role="cell">Często zagraniczny serwis</span><span role="cell">Polska marka</span></div>
         </div>
 
         <dl class="stats reveal">
-          <div><dt class="label">Profile</dt><dd>07</dd></div>
-          <div><dt class="label">Utwory</dt><dd>525+</dd></div>
+          <div><dt class="label">Playlisty</dt><dd>7</dd></div>
+          <div><dt class="label">Utwory</dt><dd>75+</dd></div>
           <div><dt class="label">Reklamy</dt><dd>0</dd></div>
-          <div><dt class="label">Link na lokal</dt><dd>1</dd></div>
+          <div><dt class="label">Abonament na firmę</dt><dd>1</dd></div>
         </dl>
       </div>
     </section>
 
-    <!-- 6. Legalnie w lokalu -->
+    <!-- 6. Licencja -->
     <section class="section legal" id="licencja" aria-labelledby="legal-title">
       <div class="shell legal__grid">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">04</span> / Legalnie w lokalu</p>
-          <h2 class="h2" id="legal-title">Licencja<br><span class="muted">na papierze.</span></h2>
-          <p class="flag">[DO WERYFIKACJI PRAWNEJ]</p>
-          <p class="lead">Do każdego abonamentu dołączamy potwierdzenie licencji z nazwą i adresem lokalu. Drukujesz je i trzymasz przy kasie na wypadek kontroli.</p>
+          <h2 class="h2" id="legal-title">Licencja na odtwarzanie</h2>
+          <p class="lead">Po zalogowaniu pobierasz potwierdzenie licencji z&nbsp;danymi Twojej firmy.</p>
           <ul class="ticks">
-            <li>Muzyka z własnego katalogu AURA</li>
-            <li>Dokument ważny przez cały okres subskrypcji</li>
-            <li>Numer licencji do weryfikacji online</li>
+            <li>Muzyka pochodzi z&nbsp;własnego katalogu AURA</li>
+            <li>PDF do pobrania po zalogowaniu</li>
+            <li>Dokument jest ważny, dopóki abonament jest aktywny</li>
           </ul>
-          <button class="btn" type="button" id="print-license"><span class="btn__icon" data-ui-icon="print"></span>Drukuj wzór</button>
+          <button class="btn" type="button" id="print-license"><span class="btn__icon" data-ui-icon="print"></span>Pobierz wzór (PDF)</button>
         </header>
 
         <article class="doc reveal" aria-label="Wzór potwierdzenia licencji">
@@ -232,16 +227,15 @@
             </header>
             <h3 class="doc__title">Potwierdzenie licencji<br>na publiczne odtwarzanie</h3>
             <dl class="doc__fields">
-              <div><dt>Lokal</dt><dd>Kawiarnia Ziarno</dd></div>
+              <div><dt>Firma</dt><dd>Kawiarnia Ziarno</dd></div>
               <div><dt>Adres</dt><dd>ul. Przykładowa 12, 31-000 Kraków</dd></div>
-              <div><dt>Okres</dt><dd>od 01.10.2026, przez czas trwania aktywnej subskrypcji</dd></div>
-              <div><dt>Zakres</dt><dd>publiczne odtwarzanie utworów z katalogu AURA w lokalu wskazanym powyżej</dd></div>
+              <div><dt>Okres</dt><dd>od 01.10.2026, przez czas trwania aktywnego abonamentu</dd></div>
+              <div><dt>Zakres</dt><dd>publiczne odtwarzanie utworów z&nbsp;katalogu AURA w&nbsp;lokalach firmy</dd></div>
             </dl>
-            <p class="doc__body">[DO WERYFIKACJI PRAWNEJ] Treść oświadczenia licencyjnego: podstawa prawna, właściciel praw do katalogu, wyłączenia oraz informacja o ewentualnych opłatach na rzecz organizacji zbiorowego zarządzania.</p>
+            <p class="doc__body">[Treść oświadczenia licencyjnego: podstawa prawna, właściciel praw do katalogu, wyłączenia oraz informacja o&nbsp;ewentualnych opłatach na rzecz organizacji zbiorowego zarządzania.]</p>
             <footer class="doc__foot">
-              <svg class="doc__qr" viewBox="0 0 21 21" aria-hidden="true" id="doc-qr"></svg>
-              <span class="doc__verify">Weryfikacja:<br>auramuzyka.pl/licencja/00142</span>
-              <span class="doc__sign">[Nazwa firmy]<br>NIP [—]</span>
+              <span>Wystawca</span>
+              <span class="doc__sign">AURA<br>auramuzyka.pl</span>
             </footer>
             <span class="doc__stamp" aria-hidden="true">Wzór</span>
           </div>
@@ -253,8 +247,8 @@
     <section class="section venues" id="dla-kogo" aria-labelledby="venues-title">
       <div class="shell">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">05</span> / Dla kogo</p>
-          <h2 class="h2" id="venues-title">Dla miejsc,<br><span class="muted">w których się zostaje.</span></h2>
+          <h2 class="h2" id="venues-title">Dla kogo</h2>
+          <p class="lead">Poniżej playlisty, od których warto zacząć w&nbsp;danym typie lokalu. To tylko podpowiedź: w&nbsp;abonamencie masz wszystkie playlisty i&nbsp;możesz je zmieniać w&nbsp;dowolnej chwili. Kliknij, żeby posłuchać przykładu.</p>
         </header>
         <ul class="venues__grid" id="venues"></ul>
       </div>
@@ -264,28 +258,26 @@
     <section class="section pricing" id="cennik" aria-labelledby="pricing-title">
       <div class="shell pricing__grid">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">06</span> / Cennik</p>
-          <h2 class="h2" id="pricing-title">Jeden plan.<br><span class="muted">Bez gwiazdek.</span></h2>
-          <p class="lead">Płacisz za lokal, nie za liczbę playlist. Pierwsze 14 dni za darmo, potem miesięcznie. Rezygnujesz jednym kliknięciem.</p>
-          <p class="pricing__multi">Masz kilka lokali? Napisz na <a href="mailto:kontakt@auramuzyka.pl">kontakt@auramuzyka.pl</a>, przygotujemy ofertę.</p>
+          <h2 class="h2" id="pricing-title">Jeden plan<br>dla całej firmy</h2>
+          <p class="lead">Płacisz 69 zł brutto miesięcznie, bez względu na liczbę lokali. Abonament możesz anulować w&nbsp;dowolnym momencie.</p>
+          <p class="pricing__multi">Masz pytania przed rejestracją? Napisz na <a href="mailto:kontakt@auramuzyka.pl">kontakt@auramuzyka.pl</a>.</p>
         </header>
 
         <article class="plan reveal" aria-labelledby="plan-name">
           <div class="plan__head">
-            <span class="label" id="plan-name">Plan / Lokal</span>
-            <span class="plan__badge">14 dni za darmo</span>
+            <span class="label" id="plan-name">Plan dla firmy</span>
           </div>
-          <p class="plan__price"><span class="plan__amount">149</span><span class="plan__unit">zł netto<br>/ mies. / lokal</span></p>
+          <p class="plan__price"><span class="plan__amount">69</span><span class="plan__unit">zł brutto<br>miesięcznie</span></p>
           <ul class="plan__list">
-            <li>7 profili, 525+ utworów instrumentalnych</li>
-            <li>Nowe utwory co miesiąc <span class="wip">[roboczo]</span></li>
-            <li>Potwierdzenie licencji do druku</li>
-            <li>1 urządzenie naraz, przejmowanie odtwarzania</li>
-            <li>Faktura VAT co miesiąc</li>
-            <li>Rezygnacja w dowolnym momencie</li>
+            <li>7 playlist, ponad 75 utworów</li>
+            <li>Tylko muzyka instrumentalna, bez reklam</li>
+            <li>Odtwarzacz w&nbsp;przeglądarce: telefon, tablet, komputer</li>
+            <li>Wszystkie lokale firmy w&nbsp;jednym abonamencie</li>
+            <li>Potwierdzenie licencji w&nbsp;PDF</li>
+            <li>Rezygnacja w&nbsp;dowolnym momencie</li>
           </ul>
-          <button class="btn btn--solid btn--block" type="button" data-open-checkout>Wypróbuj 14 dni za darmo</button>
-          <p class="plan__note">Nie pobieramy opłaty przez pierwsze 14 dni.</p>
+          <button class="btn btn--solid btn--block" type="button" data-open-auth data-tab="register">Zarejestruj się</button>
+          <p class="plan__note">Dostęp do odtwarzacza masz po opłaceniu abonamentu.</p>
         </article>
       </div>
     </section>
@@ -294,37 +286,44 @@
     <section class="section faq" id="faq" aria-labelledby="faq-title">
       <div class="shell faq__grid">
         <header class="sec-head reveal">
-          <p class="label"><span class="idx">07</span> / FAQ</p>
-          <h2 class="h2" id="faq-title">Pytania.</h2>
+          <h2 class="h2" id="faq-title">Najczęstsze pytania</h2>
         </header>
         <div class="faq__list">
           <details class="qa">
-            <summary><span class="qa__n">01</span><span class="qa__q">Na jakich urządzeniach działa AURA?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p>Na każdym urządzeniu z aktualną przeglądarką: tablecie, telefonie, laptopie albo mini-PC podłączonym do nagłośnienia. Nie trzeba niczego instalować.</p></div>
+            <summary><span class="qa__n">01</span><span class="qa__q">Jak dostać się do odtwarzacza?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Zarejestruj się, zaloguj i&nbsp;opłać abonament. Potem otwierasz odtwarzacz w&nbsp;przeglądarce na dowolnym urządzeniu i&nbsp;logujesz się na swoje konto.</p></div>
           </details>
           <details class="qa">
-            <summary><span class="qa__n">02</span><span class="qa__q">Czy potrzebuję stałego internetu?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p>Tak, muzyka jest odtwarzana strumieniowo. Wystarczy zwykłe Wi-Fi w lokalu: godzina muzyki to ok. 80 MB. Przy krótkiej przerwie w sieci odtwarzacz gra dalej z bufora i sam wznawia połączenie.</p></div>
+            <summary><span class="qa__n">02</span><span class="qa__q">Na jakich urządzeniach działa AURA?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Na każdym urządzeniu z&nbsp;aktualną przeglądarką internetową: telefonie, tablecie, laptopie albo komputerze podłączonym do głośników. Nie trzeba instalować aplikacji.</p></div>
           </details>
           <details class="qa">
-            <summary><span class="qa__n">03</span><span class="qa__q">Mam kilka lokali. Jak to rozliczyć?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p>Każdy lokal ma własny link i własne potwierdzenie licencji. Przy trzech i więcej lokalach przygotujemy indywidualną ofertę i jedną zbiorczą fakturę.</p></div>
+            <summary><span class="qa__n">03</span><span class="qa__q">Czy potrzebuję internetu?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Tak. Muzyka jest odtwarzana przez internet, wystarczy zwykłe Wi-Fi w&nbsp;lokalu. Godzina muzyki to ok. 70–85 MB. Przy krótkiej przerwie w&nbsp;internecie muzyka gra dalej, bo odtwarzacz ma zapas na bieżący i&nbsp;następny utwór. Gdy internet wróci, odtwarzacz sam wznowi połączenie.</p></div>
           </details>
           <details class="qa">
-            <summary><span class="qa__n">04</span><span class="qa__q">Czy AURA działa na iPadzie?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p>Tak, w Safari. Zalecamy dodać odtwarzacz do ekranu początkowego i zostawić włączony ekran: iPadOS może wstrzymać dźwięk po zablokowaniu urządzenia.</p></div>
+            <summary><span class="qa__n">04</span><span class="qa__q">Mam kilka lokali. Jak to działa?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Jeden abonament obejmuje wszystkie lokale Twojej firmy. W&nbsp;każdym lokalu logujesz się w&nbsp;odtwarzaczu na to samo konto.</p></div>
           </details>
           <details class="qa">
-            <summary><span class="qa__n">05</span><span class="qa__q">Jak zrezygnować?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p>W panelu płatności, jednym kliknięciem, w dowolnym momencie. Dostęp działa do końca opłaconego okresu. W czasie 14-dniowego okresu próbnego nic nie płacisz.</p></div>
+            <summary><span class="qa__n">05</span><span class="qa__q">Czy mogę włączyć muzykę na kilku urządzeniach naraz?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Tak. Na jednym koncie muzyka może grać jednocześnie na wielu urządzeniach, np. w&nbsp;kilku lokalach albo w&nbsp;dwóch salach.</p></div>
           </details>
           <details class="qa">
-            <summary><span class="qa__n">06</span><span class="qa__q">Czy muszę płacić dodatkowe opłaty za muzykę w lokalu?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p><span class="flag">[DO WERYFIKACJI PRAWNEJ]</span> Odpowiedź zależy od modelu licencjonowania katalogu. Treść uzupełnimy po weryfikacji prawnej.</p></div>
+            <summary><span class="qa__n">06</span><span class="qa__q">Czy AURA działa na iPadzie?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Tak, w&nbsp;przeglądarce Safari. Zostaw ekran iPada włączony, bo po zablokowaniu urządzenia iPadOS może wstrzymać dźwięk. Odtwarzacz możesz dodać do ekranu początkowego i&nbsp;otwierać go jak aplikację.</p></div>
           </details>
           <details class="qa">
-            <summary><span class="qa__n">07</span><span class="qa__q">Czy mogę grać na dwóch urządzeniach naraz?</span><span class="qa__x" aria-hidden="true"></span></summary>
-            <div class="qa__a"><p>Jeden link gra na jednym urządzeniu naraz. Gdy otworzysz go na drugim, możesz jednym dotknięciem przejąć odtwarzanie. Potrzebujesz dwóch stref? Dopiszemy drugie urządzenie do planu.</p></div>
+            <summary><span class="qa__n">07</span><span class="qa__q">Gdzie pobiorę potwierdzenie licencji?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>Po zalogowaniu, w&nbsp;panelu konta. Plik PDF możesz wydrukować i&nbsp;trzymać w&nbsp;lokalu.</p></div>
+          </details>
+          <details class="qa">
+            <summary><span class="qa__n">08</span><span class="qa__q">Jak zrezygnować?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p>W&nbsp;panelu konta, w&nbsp;dowolnym momencie. Dostęp działa do końca opłaconego miesiąca.</p></div>
+          </details>
+          <details class="qa">
+            <summary><span class="qa__n">09</span><span class="qa__q">Czy muszę dodatkowo płacić ZAiKS-owi lub innym organizacjom?</span><span class="qa__x" aria-hidden="true"></span></summary>
+            <div class="qa__a"><p><span class="flag">[DO WERYFIKACJI PRAWNEJ]</span> Odpowiedź uzupełnimy po weryfikacji prawnej.</p></div>
           </details>
         </div>
       </div>
@@ -337,8 +336,8 @@
       <p class="footer__mark" aria-hidden="true">AURA <span class="logo__slash">/</span></p>
       <div class="footer__grid">
         <div>
-          <p class="label">Claim</p>
-          <p class="footer__claim">Każda przestrzeń ma swój rytm.</p>
+          <p class="label">AURA</p>
+          <p class="footer__claim">Instrumentalna muzyka dla lokali usługowych.</p>
         </div>
         <div>
           <p class="label">Kontakt</p>
@@ -349,11 +348,11 @@
           <ul>
             <li><a href="#posluchaj">Posłuchaj</a></li>
             <li><a href="#cennik">Cennik</a></li>
-            <li><a href="player.html">Odtwarzacz</a></li>
+            <li><a href="#" data-open-auth data-tab="login">Zaloguj się</a></li>
           </ul>
         </div>
         <div>
-          <p class="label">Prawne</p>
+          <p class="label">Dokumenty</p>
           <ul>
             <li><a href="#" data-dummy>Regulamin</a></li>
             <li><a href="#" data-dummy>Polityka prywatności</a></li>
@@ -361,41 +360,38 @@
           </ul>
         </div>
       </div>
-      <p class="footer__legal label"><span>© 2026 AURA · [Nazwa firmy] · NIP [—]</span><span>auramuzyka.pl</span></p>
+      <p class="footer__legal label"><span>© 2026 AURA</span><span>auramuzyka.pl</span></p>
     </div>
   </footer>
 
-  <!-- Atrapa płatności -->
-  <dialog class="modal" id="checkout" aria-labelledby="co-title">
+  <!-- Logowanie / rejestracja (rejestracja prowadzi do ekranu opłacenia abonamentu w odtwarzaczu) -->
+  <dialog class="modal" id="auth" aria-labelledby="auth-title">
     <div class="modal__body">
       <div class="modal__head">
-        <span class="proto-tag">Prototyp / Atrapa</span>
         <button class="modal__close" type="button" data-close aria-label="Zamknij">×</button>
       </div>
-      <form class="co" id="co-form" novalidate>
-        <h2 class="h3" id="co-title">Zacznij 14 dni za darmo</h2>
-        <p class="co__sum"><span>AURA / Plan Lokal</span><span>0 zł dziś, potem 149 zł netto / mies.</span></p>
-        <label class="field"><span class="label">E-mail</span><input type="email" name="email" autocomplete="off" placeholder="kawiarnia@przyklad.pl" required></label>
-        <label class="field"><span class="label">Nazwa lokalu</span><input type="text" name="venue" autocomplete="off" placeholder="Kawiarnia Ziarno" required></label>
-        <label class="field"><span class="label">NIP (opcjonalnie)</span><input type="text" name="nip" inputmode="numeric" autocomplete="off" placeholder="000-000-00-00"></label>
-        <button class="btn btn--solid btn--block" type="submit">Przejdź do płatności</button>
-        <p class="co__note">To atrapa. Dane nie są nigdzie wysyłane. W produkcji tu nastąpi przekierowanie do bezpiecznej płatności.</p>
+
+      <!-- Krok 1: konto -->
+      <form class="co" id="auth-form" data-step="auth" novalidate>
+        <div class="tabs" role="tablist" aria-label="Konto">
+          <button class="tabs__btn" type="button" role="tab" data-tab="login" aria-selected="false">Zaloguj się</button>
+          <button class="tabs__btn" type="button" role="tab" data-tab="register" aria-selected="true">Zarejestruj się</button>
+        </div>
+        <h2 class="h3" id="auth-title">Załóż konto</h2>
+        <label class="field" data-only="register"><span class="label">Nazwa firmy</span><input type="text" name="company" autocomplete="off" placeholder="Kawiarnia Ziarno" required></label>
+        <label class="field"><span class="label">E-mail</span><input type="text" inputmode="email" name="email" autocomplete="off" placeholder="kawiarnia@przyklad.pl" required></label>
+        <label class="field"><span class="label">Hasło</span><input type="password" name="password" autocomplete="off" placeholder="••••••••" required></label>
+        <button class="btn btn--solid btn--block" type="submit" id="auth-submit">Zarejestruj się</button>
       </form>
-      <div class="co-done" id="co-done" hidden>
-        <p class="label">Status / Gotowe</p>
-        <h2 class="h3">Link do odtwarzacza jest gotowy</h2>
-        <p>W prawdziwej wersji link przyjdzie też e-mailem razem z potwierdzeniem licencji.</p>
-        <p class="co-done__link">auramuzyka.pl/p/<span>•••••••••••••</span></p>
-        <a class="btn btn--solid btn--block" href="player.html">Otwórz odtwarzacz</a>
-      </div>
+
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/profiles.js" defer></script>
-  <script src="js/audio.js" defer></script>
-  <script src="js/visual.js" defer></script>
-  <script src="js/main.js" defer></script>
+  <script src="js/profiles.js?v=20261003j" defer></script>
+  <script src="js/audio.js?v=20261003j" defer></script>
+  <script src="js/visual.js?v=20261003j" defer></script>
+  <script src="js/main.js?v=20261003j" defer></script>
 </body>
 </html>

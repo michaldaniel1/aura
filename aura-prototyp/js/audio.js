@@ -289,6 +289,7 @@
   /* ---------- kanały ---------- */
 
   // opts.playlist – lista plików (odtwarzacz); bez niej: assets/audio/{slug}.mp3
+  // opts.single – jeden przykładowy utwór (landing): zawsze utwór 0, bez kolejnych utworów
   function play(slug, opts) {
     opts = opts || {};
     unlock();
@@ -299,7 +300,7 @@
     }
     const list = opts.playlist || (probe[slug] === false ? null : ['assets/audio/' + slug + '.mp3']);
     const size = list ? list.length : p.titles.length;
-    const idx = nextFromBag(slug + (list ? ':f' : ':s'), size);
+    const idx = opts.single ? 0 : nextFromBag(slug + (list ? ':f' : ':s'), size);
 
     const ch = { slug, gain: ctx.createGain(), ramp: null, opts };
     ch.gain.gain.value = 0.0001;
@@ -349,7 +350,14 @@
       const pos = position();
       if (pos.duration && pos.duration - pos.time < XFADE + 0.2) {
         current.advancing = true;
-        next();
+        if (current.opts.single) {
+          // przykład się kończy: wyciszenie i koniec, bez następnego utworu
+          const slug = current.slug;
+          stop();
+          emit('ended', slug);
+        } else {
+          next();
+        }
       }
     }, 250);
   }
@@ -458,5 +466,6 @@
     get volume() { return volume; },
     get muted() { return muted; },
     get probe() { return probe; },
+    get media() { return current && current.el ? current.el : null; }, // pomoc do testów w prototypie
   };
 })();

@@ -1,23 +1,24 @@
 /* AURA · landing (index.html)
- * Menu, panel kanałów z demo audio, makieta urządzenia, dla kogo, FAQ, atrapa płatności.
+ * Menu, lista playlist z przykładowymi utworami, makieta urządzenia, dla kogo, FAQ,
+ * atrapa logowania i płatności.
  */
 (function () {
   'use strict';
 
-  const { profiles, bySlug } = window.AURA;
+  const { bySlug, samples } = window.AURA; // na landingu tylko 5 playlist z przykładami
   const A = window.AuraAudio;
   const $ = (s, el) => (el || document).querySelector(s);
   const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
   const RM = window.AURA.reducedMotion;
 
-  // [ROBOCZE] typy lokali i sugerowane profile
+  // [ROBOCZE] typy lokali i playlisty, od których warto zacząć
   const VENUES = [
-    { k: 'A', name: 'Kawiarnia', note: 'Rozmowy przy stolikach i laptop przy oknie.', slugs: ['lofi', 'chillout'] },
-    { k: 'B', name: 'Barber i fryzjer', note: 'Energia, ale bez wokali nad głową klienta.', slugs: ['hiphop', 'deephouse'] },
-    { k: 'C', name: 'Gabinet i spa', note: 'Tło, które uspokaja, zanim klient usiądzie.', slugs: ['ambient', 'chillout'] },
-    { k: 'D', name: 'Butik i showroom', note: 'Rytm, który prowadzi między wieszakami.', slugs: ['deephouse', 'smooth-jazz'] },
-    { k: 'E', name: 'Restauracja i wine bar', note: 'Muzyka pod rozmowę, nie zamiast niej.', slugs: ['smooth-jazz', 'chillout'] },
-    { k: 'F', name: 'Hotel i lobby', note: 'Jeden nastrój od śniadania do późnego check-inu.', slugs: ['chillout', 'ambient'] },
+    { name: 'Kawiarnie', slugs: ['lofi', 'chillout'] },
+    { name: 'Barberzy i salony fryzjerskie', slugs: ['deephouse', 'lofi'] },
+    { name: 'Gabinety kosmetyczne i spa', slugs: ['ambient', 'chillout'] },
+    { name: 'Butiki i showroomy', slugs: ['deephouse', 'smooth-jazz'] },
+    { name: 'Restauracje i winiarnie', slugs: ['smooth-jazz', 'chillout'] },
+    { name: 'Hotele', slugs: ['chillout', 'ambient'] },
   ];
 
   /* ---------- ikony UI ---------- */
@@ -50,19 +51,19 @@
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && document.body.classList.contains('menu-open')) { setMenu(false); menuBtn.focus(); }
   });
-  $$('[data-open-checkout]', menu).forEach((b) => b.addEventListener('click', () => setMenu(false)));
+  $$('[data-open-auth], [data-listen]', menu).forEach((b) => b.addEventListener('click', () => setMenu(false)));
 
   /* ---------- wizualizacje ---------- */
   const heroVis = window.AuraVisual.create($('#hero-canvas'), { mode: 'hero' });
   const devVis = window.AuraVisual.create($('#device-canvas'), { mode: 'device' });
   const visuals = [heroVis, devVis];
 
-  /* ---------- panel kanałów ---------- */
+  /* ---------- lista playlist (przykłady: jeden utwór z każdej) ---------- */
   const list = $('#channels');
-  list.innerHTML = profiles.map((p) => `
+  list.innerHTML = samples.map((p, i) => `
     <li>
       <button class="ch" type="button" data-slug="${p.slug}" aria-pressed="false" style="--ch-accent:${p.accent}">
-        <span class="ch__n">${p.n}</span>
+        <span class="ch__n">${String(i + 1).padStart(2, '0')}</span>
         <span class="ch__icon">${window.AURA.profileIcon(p, 28)}</span>
         <span class="ch__main">
           <span class="ch__name">${p.name}</span>
@@ -70,7 +71,6 @@
         </span>
         <span class="ch__places">${p.places}</span>
         <span class="ch__bpm">${p.bpm}<small> BPM</small></span>
-        <span class="ch__tracks">${p.tracks}<small> utw.</small></span>
         <span class="ch__status">
           <span class="ch__meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <span class="ch__state">Gotowy</span>
@@ -79,20 +79,66 @@
     </li>`).join('');
 
   const dots = $('#dv-dots');
-  dots.innerHTML = profiles.map((p) => `<i data-slug="${p.slug}" style="--ch-accent:${p.accent}"></i>`).join('');
+  dots.innerHTML = samples.map((p) => `<i data-slug="${p.slug}" style="--ch-accent:${p.accent}"></i>`).join('');
 
   let selected = null;
+  let loading = false;
+
+  /* ---------- limit odsłuchu: 2 minuty łącznie na wizytę (sessionStorage) ---------- */
+  const LIMIT = 120;
+  let used = 0;
+  try { used = Number(sessionStorage.getItem('aura.previewUsed')) || 0; } catch (e) { /* brak dostępu */ }
+  const saveUsed = () => { try { sessionStorage.setItem('aura.previewUsed', used.toFixed(1)); } catch (e) { /* brak dostępu */ } };
+  const limitReached = () => used >= LIMIT;
+  const mmss = (t) => { t = Math.max(0, Math.ceil(t)); return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'); };
+  function renderTimer() {
+    const el = $('#dv-timer');
+    if (used <= 0) return;
+    el.hidden = false;
+    $('b', el).textContent = mmss(LIMIT - used);
+  }
+  function highlightCta() {
+    const cta = $('.device__cta');
+    cta.classList.remove('is-highlight');
+    void cta.offsetWidth; // restart animacji
+    cta.classList.add('is-highlight');
+  }
+  // true = limit wykorzystany, odtwarzanie zablokowane
+  function blockIfLimit() {
+    if (!limitReached()) return false;
+    toast('Na stronie można posłuchać 2 minut przykładów. Zarejestruj się, aby słuchać dalej.');
+    highlightCta();
+    return true;
+  }
+  let lastTick = performance.now();
+  setInterval(() => {
+    const now = performance.now();
+    const dt = (now - lastTick) / 1000;
+    lastTick = now;
+    if (A.state !== 'playing' || limitReached()) return;
+    used = Math.min(LIMIT, used + dt);
+    saveUsed();
+    renderTimer();
+    if (limitReached()) {
+      A.stop();
+      loading = false;
+      $('#dv-track').textContent = 'Limit odsłuchu wykorzystany';
+      highlightCta();
+    }
+  }, 250);
 
   function select(slug) {
+    if (A.state !== 'playing' && blockIfLimit()) return;
     A.unlock();
     if (selected === slug && A.slug === slug) { A.toggle(); return; }
     selected = slug;
+    loading = true;
     const p = bySlug[slug];
     window.AURA.applyAccent(p);
     visuals.forEach((v) => v.setProfile(p));
     renderSelection();
-    $('#dv-track').textContent = 'Łączenie…';
-    A.play(slug);
+    $('#dv-track').textContent = 'Ładowanie…';
+    A.play(slug, { single: true });
   }
 
   function renderSelection() {
@@ -101,22 +147,25 @@
       const on = b.dataset.slug === selected;
       b.setAttribute('aria-pressed', String(on));
       b.classList.toggle('is-live', on && st === 'playing');
-      $('.ch__state', b).textContent = on ? (st === 'playing' ? 'Na żywo' : st === 'paused' ? 'Pauza' : 'Łączenie') : 'Gotowy';
+      $('.ch__state', b).textContent = on ? (st === 'playing' ? 'Gra' : st === 'paused' ? 'Pauza' : loading ? 'Ładowanie' : 'Gotowy') : 'Gotowy';
     });
     $$('i', dots).forEach((d) => d.classList.toggle('is-on', d.dataset.slug === selected));
     $$('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.slug === selected && st === 'playing')));
     const p = selected && bySlug[selected];
-    $('#st-channel').textContent = p ? p.n + ' / ' + p.name.toUpperCase() : '—';
-    $('#hero-live-text').textContent = st === 'playing' ? 'Na żywo' : st === 'paused' ? 'Pauza' : 'Gotowy';
-    $('#hero-live').classList.toggle('is-live', st === 'playing');
-    $('#panel-hint').textContent = st === 'playing' ? 'Kliknij ponownie, aby wstrzymać' : 'Wybierz kanał';
+    $('#st-channel').textContent = p ? p.name.toUpperCase() : '—';
+    const playing = st === 'playing';
+    $('#hero-play-text').textContent = playing ? 'Zatrzymaj' : 'Odtwórz';
+    $('#hero-play').innerHTML = window.AURA.uiIcon(playing ? 'pause' : 'play', 16) + $('#hero-play-text').outerHTML;
+    $('#hero-play').setAttribute('aria-label', playing ? 'Zatrzymaj przykład' : 'Odtwórz losowy przykład');
+    $('#hero-play').classList.toggle('is-live', playing);
+    $('#dv-live').textContent = playing ? 'Gra' : st === 'paused' ? 'Pauza' : 'Gotowy';
     if (p) {
-      $('#dv-idx').textContent = p.n + ' / 07';
+      $('#dv-idx').textContent = String(samples.indexOf(p) + 1).padStart(2, '0') + ' / ' + String(samples.length).padStart(2, '0');
       $('#dv-name').textContent = p.name;
     }
     const play = $('#dv-play');
     play.innerHTML = window.AURA.uiIcon(st === 'playing' ? 'pause' : 'play', 22);
-    play.setAttribute('aria-label', st === 'playing' ? 'Pauza' : 'Odtwórz');
+    play.setAttribute('aria-label', st === 'playing' ? 'Pauza' : 'Odtwórz przykład');
     document.body.classList.toggle('is-playing', st === 'playing');
   }
 
@@ -126,13 +175,23 @@
   });
 
   $('#dv-play').addEventListener('click', () => {
+    if (A.state !== 'playing' && blockIfLimit()) return;
     if (!selected) select('ambient'); else if (A.slug) { A.unlock(); A.toggle(); } else select(selected);
   });
 
-  $('#hero-listen').addEventListener('click', () => {
+  // „Odtwórz” w panelu statusu hero: losowy przykład (bez powtórzenia ostatniego), w trakcie: zatrzymaj
+  $('#hero-play').addEventListener('click', () => {
+    if (A.state === 'playing') { A.stop(); return; }
+    if (blockIfLimit()) return;
+    const pool = samples.filter((p) => p.slug !== selected);
+    select(pool[Math.floor(Math.random() * pool.length)].slug);
+  });
+
+  // „Posłuchaj przykładów” (belka, menu, hero): przewija do listy i włącza przykład
+  $$('[data-listen]').forEach((b) => b.addEventListener('click', () => {
     if (A.state !== 'playing') select(selected || 'ambient');
     $('#posluchaj').scrollIntoView({ behavior: RM.matches ? 'auto' : 'smooth' });
-  });
+  }));
 
   A.on('state', (s) => {
     visuals.forEach((v) => v.setMode(s === 'playing' ? 'playing' : s === 'paused' ? 'paused' : 'idle'));
@@ -140,7 +199,13 @@
     if (s === 'playing') meterLoop();
   });
   A.on('track', (t) => {
-    $('#dv-track').textContent = 'Utwór ' + t.number + ' · ' + t.title;
+    loading = false;
+    $('#dv-track').textContent = 'Przykład · ' + t.title;
+    renderSelection();
+  });
+  A.on('ended', () => {
+    loading = false;
+    $('#dv-track').textContent = 'Koniec przykładu';
     renderSelection();
   });
 
@@ -181,19 +246,16 @@
   /* ---------- dla kogo ---------- */
   $('#venues').innerHTML = VENUES.map((v) => `
     <li class="venue reveal">
-      <span class="venue__k">${v.k} /</span>
       <h3 class="h3">${v.name}</h3>
-      <p>${v.note}</p>
-      <p class="label venue__label">Sugerowane kanały</p>
       <div class="venue__chips">
-        ${v.slugs.map((s) => { const p = bySlug[s]; return `<button class="chip" type="button" data-slug="${s}" aria-pressed="false" style="--ch-accent:${p.accent}"><i></i>${p.n} ${p.name}</button>`; }).join('')}
+        ${v.slugs.map((s) => { const p = bySlug[s]; return `<button class="chip" type="button" data-slug="${s}" aria-pressed="false" style="--ch-accent:${p.accent}"><i></i>${p.name}</button>`; }).join('')}
       </div>
     </li>`).join('');
   $('#venues').addEventListener('click', (e) => {
     const c = e.target.closest('.chip');
     if (!c) return;
     select(c.dataset.slug);
-    toast('Gra: ' + bySlug[c.dataset.slug].n + ' / ' + bySlug[c.dataset.slug].name);
+    toast('Przykład z playlisty ' + bySlug[c.dataset.slug].name);
   });
 
   /* ---------- FAQ: animacja wysokości ---------- */
@@ -216,46 +278,61 @@
     });
   });
 
-  /* ---------- atrapa płatności ---------- */
-  const dlg = $('#checkout'), form = $('#co-form'), done = $('#co-done');
-  $$('[data-open-checkout]').forEach((b) => b.addEventListener('click', () => {
-    form.hidden = false; done.hidden = true; form.reset();
+  /* ---------- logowanie / rejestracja (prototyp: wystarczy niepuste pole, np. „test”) ---------- */
+  const dlg = $('#auth'), form = $('#auth-form');
+  const steps = $$('[data-step]', dlg);
+  function showStep(name) {
+    steps.forEach((el) => (el.hidden = el.dataset.step !== name));
+    const first = $('[data-step="' + name + '"] .btn--solid, [data-step="' + name + '"] input', dlg);
+    if (first) first.focus();
+  }
+  function setTab(tab) {
+    const reg = tab === 'register';
+    $$('.tabs__btn', form).forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    $$('[data-only="register"]', form).forEach((f) => {
+      f.hidden = !reg;
+      $('input', f).required = reg;
+    });
+    $('#auth-title').textContent = reg ? 'Załóż konto' : 'Zaloguj się';
+    $('#auth-submit').textContent = reg ? 'Zarejestruj się' : 'Zaloguj się';
     $$('.field', form).forEach((f) => f.classList.remove('is-invalid'));
+  }
+  $$('[data-open-auth]').forEach((b) => b.addEventListener('click', (e) => {
+    e.preventDefault();
+    form.reset();
+    setTab(b.dataset.tab || 'register');
     dlg.showModal();
+    showStep('auth');
   }));
+  $$('.tabs__btn', form).forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   dlg.addEventListener('click', (e) => { if (e.target === dlg || e.target.closest('[data-close]')) dlg.close(); });
   form.addEventListener('submit', (e) => {
     e.preventDefault(); // prototyp: nic nie jest wysyłane
     let ok = true;
     $$('input[required]', form).forEach((i) => {
-      const bad = !i.checkValidity() || !i.value.trim();
+      const bad = !i.value.trim();
       i.closest('.field').classList.toggle('is-invalid', bad);
       if (bad && ok) { i.focus(); ok = false; }
     });
     if (!ok) return;
-    form.hidden = true; done.hidden = false;
-    $('a', done).focus();
+    const register = !$('[data-only="register"]', form).hidden;
+    if (register) {
+      // nowe konto: ekran opłacenia abonamentu w odtwarzaczu
+      try { sessionStorage.setItem('aura.company', form.company.value.trim()); } catch (err) { /* brak dostępu */ }
+      window.location.href = 'player.html?krok=abonament';
+    } else {
+      window.location.href = 'player.html';
+    }
   });
 
-  /* ---------- licencja: druk wzoru ---------- */
-  $('#print-license').addEventListener('click', () => {
+  /* ---------- licencja: wzór do druku / zapisu jako PDF ---------- */
+  function printLicense() {
+    if (dlg.open) dlg.close();
     document.body.classList.add('print-license');
     window.print();
     setTimeout(() => document.body.classList.remove('print-license'), 500);
-  });
-
-  // Atrapa kodu QR (deterministyczny wzór, nie jest prawdziwym kodem)
-  (function qr() {
-    const svg = $('#doc-qr');
-    let s = 142, out = '';
-    const finder = (x, y) => `<path d="M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5z" fill-rule="evenodd"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3"/>`;
-    for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
-      if ((x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12)) continue;
-      s = (s * 16807) % 2147483647;
-      if (s % 2) out += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
-    }
-    svg.innerHTML = finder(0, 0) + finder(14, 0) + finder(0, 14) + out;
-  })();
+  }
+  $('#print-license').addEventListener('click', printLicense);
 
   /* ---------- atrapy linków ---------- */
   const toastEl = $('#toast');
@@ -266,7 +343,7 @@
     clearTimeout(toastT);
     toastT = setTimeout(() => toastEl.classList.remove('is-on'), 2400);
   }
-  $$('[data-dummy]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); toast('Atrapa: strona powstanie w kolejnej iteracji'); }));
+  $$('[data-dummy]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); toast('W prototypie ta strona jeszcze nie istnieje'); }));
 
   /* ---------- wejście sekcji ---------- */
   if ('IntersectionObserver' in window && !RM.matches) {
@@ -279,5 +356,7 @@
   }
 
   renderSelection();
+  renderTimer();
+  if (limitReached()) $('#dv-track').textContent = 'Limit odsłuchu wykorzystany';
   A.init();
 })();

@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=20261003j">
 </head>
 <body class="page-player" data-state="idle" data-offline="false" data-muted="false">
   <canvas class="pl-canvas" id="pl-canvas" aria-hidden="true"></canvas>
@@ -24,16 +24,19 @@
   <div class="pl" id="pl">
     <header class="pl-top">
       <a class="logo" href="index.html" aria-label="AURA, strona główna">AURA <span class="logo__slash">/</span></a>
-      <span class="pl-top__venue">Kawiarnia Ziarno · Kraków</span>
+      <span class="pl-top__venue">Kawiarnia Ziarno</span>
       <span class="pl-top__spacer"></span>
-      <span class="pl-top__conn"><i class="live__dot"></i><span id="pl-conn">Połączono</span></span>
+      <button class="pl-top__account" type="button" id="pl-account" aria-haspopup="dialog" aria-label="Moje konto">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c1.2-3.4 3.8-5 7-5s5.8 1.6 7 5"/></svg>
+        <span class="pl-top__wide">Moje konto</span>
+      </button>
       <time class="pl-top__clock" id="pl-clock">--:--</time>
-      <a href="index.html#licencja">Licencja <span data-ui-icon="external" data-size="16"></span></a>
+      <a href="index.html#licencja">Licencja<span class="pl-top__wide"> (PDF)</span> <span class="pl-top__wide" data-ui-icon="external" data-size="16"></span></a>
     </header>
 
     <main class="pl-main">
       <section class="pl-now" aria-label="Teraz gra">
-        <p class="label" id="pl-index">Kanał 01 / 07</p>
+        <p class="label" id="pl-index">Playlista 01 / 07</p>
         <h1 class="pl-name" id="pl-name">Ambient</h1>
         <p class="pl-mood" id="pl-mood"></p>
         <div class="pl-track">
@@ -48,7 +51,7 @@
         </button>
       </section>
 
-      <nav class="pl-channels" id="pl-channels" aria-label="Kanały (klawisze 1–7)"></nav>
+      <nav class="pl-channels" id="pl-channels" aria-label="Playlisty (klawisze 1–7)"></nav>
     </main>
 
     <footer class="pl-bottom">
@@ -60,75 +63,145 @@
         <input class="range" id="pl-volume" type="range" min="0" max="100" step="1" value="80">
         <output id="pl-vol-out" for="pl-volume">80%</output>
       </div>
-      <p class="pl-meta"><b>Losowo</b> · bez powtórzeń · <span id="pl-status" aria-live="polite">Gotowy</span></p>
     </footer>
   </div>
 
   <!-- Stany -->
   <div class="overlay" id="ov-idle" role="dialog" aria-modal="true" aria-labelledby="ov-idle-t">
     <div class="ov">
-      <p class="label ov__status"><i class="live__dot"></i>Status / Gotowy</p>
       <button class="ov__start" type="button" id="ov-start" aria-describedby="ov-idle-d">
-        <span data-ui-icon="play" data-size="64"></span>
+        <svg viewBox="0 0 80 80" width="80" height="80" aria-hidden="true"><path d="M29 17 L63 40 L29 63 Z" fill="currentColor"/></svg>
       </button>
-      <h2 class="ov__title" id="ov-idle-t">Dotknij, aby zacząć</h2>
-      <p class="ov__text" id="ov-idle-d">Muzyka ruszy od kanału <span id="ov-idle-ch">01 / Ambient</span>. Przeglądarka wymaga jednego dotknięcia, zanim zagra dźwięk.</p>
+      <h2 class="ov__title" id="ov-idle-t">Włącz muzykę</h2>
+      <p class="ov__text" id="ov-idle-d">Zacznie grać playlista <span id="ov-idle-ch">Ambient</span>. Playlistę zmienisz w&nbsp;każdej chwili.</p>
     </div>
   </div>
 
   <div class="overlay" id="ov-loading" role="status" aria-live="polite">
     <div class="ov">
-      <p class="label ov__status">Status / Ładowanie</p>
       <div class="loader"><i></i></div>
-      <p class="ov__text" id="ov-loading-t">Łączę z katalogiem…</p>
+      <p class="ov__text" id="ov-loading-t">Ładuję muzykę…</p>
       <div class="skel" aria-hidden="true"><i style="width:180px"></i><i style="width:120px"></i></div>
     </div>
   </div>
 
-  <div class="overlay" id="ov-elsewhere" role="dialog" aria-modal="true" aria-labelledby="ov-else-t">
-    <div class="ov">
-      <p class="label ov__status">Status / Inne urządzenie</p>
-      <h2 class="ov__title" id="ov-else-t">Ten link gra teraz na innym urządzeniu</h2>
-      <div class="ov__device">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M11 18h2"/></svg>
-        <span>iPad · Safari<small>gra od 08:12 · kanał 04 / Chillout</small></span>
-      </div>
-      <p class="ov__text">Jeden link może grać na jednym urządzeniu naraz. Jeśli przejmiesz odtwarzanie, tamto urządzenie się zatrzyma.</p>
-      <div class="ov__actions">
-        <button class="btn btn--solid" type="button" id="ov-takeover">Odtwarzaj tutaj</button>
-      </div>
-    </div>
-  </div>
 
   <div class="overlay" id="ov-inactive" role="dialog" aria-modal="true" aria-labelledby="ov-inact-t">
     <div class="ov">
-      <p class="label ov__status">Status / Dostęp nieaktywny</p>
       <h2 class="ov__title" id="ov-inact-t">Dostęp nieaktywny</h2>
-      <p class="ov__text">Subskrypcja dla lokalu Kawiarnia Ziarno wygasła 12.09.2026. Odnów ją, a ten sam link zacznie znowu działać.</p>
+      <p class="ov__text">Abonament firmy Kawiarnia Ziarno wygasł 12.09.2026. Po odnowieniu odtwarzacz znowu zadziała.</p>
       <div class="ov__actions">
-        <a class="btn btn--solid" href="index.html#cennik">Odnów dostęp</a>
+        <!-- [DO UZUPEŁNIENIA] adres Stripe Checkout / Customer Portal (Stripe → Settings → Billing → Customer portal → Login link) -->
+        <a class="btn btn--solid" href="https://stripe.com/" target="_blank" rel="noopener noreferrer">Odnów abonament</a>
         <a class="btn" href="mailto:kontakt@auramuzyka.pl">Napisz do nas</a>
       </div>
     </div>
   </div>
 
+  <!-- Nowe konto bez abonamentu: opłacenie abonamentu -->
+  <div class="overlay overlay--scroll" id="ov-subscribe" role="dialog" aria-modal="true" aria-labelledby="ov-sub-t">
+    <div class="ov sub">
+      <p class="label sub__ok"><span aria-hidden="true">✓</span> Konto założone</p>
+      <h2 class="ov__title" id="ov-sub-t">Opłać abonament i&nbsp;włącz muzykę</h2>
+      <p class="ov__text">Po opłaceniu od razu masz dostęp do odtwarzacza i&nbsp;wszystkich playlist.</p>
+
+      <div class="sub-card">
+        <p class="sub-card__price"><span class="sub-card__amount">69 zł</span><span class="sub-card__unit">brutto miesięcznie</span></p>
+        <p class="sub-card__scope">Jeden abonament na wszystkie lokale firmy <span id="sub-company">Twojej firmy</span>.</p>
+        <ul class="sub-card__list">
+          <li>7 playlist, ponad 75 utworów instrumentalnych</li>
+          <li>Bez reklam</li>
+          <li>Działa w&nbsp;przeglądarce na telefonie, tablecie i&nbsp;komputerze</li>
+          <li>Potwierdzenie licencji w&nbsp;PDF</li>
+          <li>Rezygnacja w&nbsp;dowolnym momencie</li>
+        </ul>
+
+        <div class="sub-card__pay" id="sub-pay">
+          <!-- [DO UZUPEŁNIENIA] adres Stripe Checkout / Payment Link dla planu 69 zł -->
+          <a class="btn btn--solid btn--block" id="sub-pay-btn" href="https://stripe.com/" target="_blank" rel="noopener noreferrer">Przejdź do płatności</a>
+          <p class="sub-card__note">Płatność obsługuje Stripe. Strona otworzy się w&nbsp;nowej karcie.</p>
+        </div>
+        <div class="sub-card__pay" id="sub-wait" hidden>
+          <p class="sub-card__note sub-card__note--strong">Płatność otwarta w&nbsp;nowej karcie. Gdy ją zakończysz, wróć tutaj.</p>
+          <button class="btn btn--solid btn--block" type="button" id="sub-done">Gotowe, włącz odtwarzacz</button>
+          <a class="sub-card__again" href="https://stripe.com/" target="_blank" rel="noopener noreferrer">Otwórz płatność jeszcze raz</a>
+        </div>
+      </div>
+
+      <a class="sub__logout" href="index.html">Wyloguj</a>
+    </div>
+  </div>
+
   <div class="banner" id="bn-offline" role="status" aria-live="polite">
     <span class="banner__dot" aria-hidden="true"></span>
-    <span><span id="bn-text">Brak internetu, ponawiam za 3 s</span><br><small id="bn-sub">Gra z bufora, zostało ok. 04:00</small></span>
+    <span><span id="bn-text">Brak internetu. Kolejna próba za 3 s</span><br><small id="bn-sub">Muzyka gra z&nbsp;zapasu jeszcze ok. 04:00</small></span>
     <button class="btn" type="button" id="bn-retry">Ponów</button>
   </div>
 
-  <!-- Panel prototypu: nie wchodzi do produktu -->
-  <button class="proto-toggle" id="proto-toggle" type="button" aria-expanded="false" aria-controls="proto">Prototyp · D</button>
+  <!-- Moje konto (atrapa: nic nie jest wysyłane) -->
+  <dialog class="modal account" id="account" aria-labelledby="acc-title">
+    <div class="modal__body">
+      <div class="modal__head account__head">
+        <h2 class="h3" id="acc-title">Moje konto</h2>
+        <button class="modal__close" type="button" data-close aria-label="Zamknij">×</button>
+      </div>
+
+      <section class="account__sec" aria-labelledby="acc-email-t">
+        <div class="account__row">
+          <div><p class="label" id="acc-email-t">E-mail</p><p class="account__val" id="acc-email">kawiarnia@przyklad.pl</p></div>
+          <button class="btn btn--sm" type="button" data-toggle="acc-email-form">Zmień</button>
+        </div>
+        <form class="account__form" id="acc-email-form" hidden novalidate>
+          <label class="field"><span class="label">Nowy e-mail</span><input type="email" name="email" autocomplete="off" required></label>
+          <button class="btn btn--solid btn--sm" type="submit">Zapisz</button>
+        </form>
+      </section>
+
+      <section class="account__sec" aria-labelledby="acc-pass-t">
+        <div class="account__row">
+          <div><p class="label" id="acc-pass-t">Hasło</p><p class="account__val">••••••••</p></div>
+          <button class="btn btn--sm" type="button" data-toggle="acc-pass-form">Zmień hasło</button>
+        </div>
+        <form class="account__form" id="acc-pass-form" hidden novalidate>
+          <label class="field"><span class="label">Obecne hasło</span><input type="password" name="current" autocomplete="off" required></label>
+          <label class="field"><span class="label">Nowe hasło</span><input type="password" name="next" autocomplete="off" minlength="8" required></label>
+          <button class="btn btn--solid btn--sm" type="submit">Zapisz</button>
+        </form>
+      </section>
+
+      <section class="account__sec" aria-labelledby="acc-sub-t">
+        <div class="account__row">
+          <div>
+            <p class="label" id="acc-sub-t">Abonament</p>
+            <p class="account__val" id="acc-sub">Aktywny · 69 zł brutto miesięcznie</p>
+            <p class="account__note" id="acc-sub-note">Następna płatność: 01.11.2026</p>
+          </div>
+          <button class="btn btn--sm" type="button" data-toggle="acc-cancel">Anuluj</button>
+        </div>
+        <div class="account__form" id="acc-cancel" hidden>
+          <p class="account__note">Muzyka będzie grać do końca opłaconego okresu (31.10.2026). Potem odtwarzacz przestanie działać.</p>
+          <button class="btn btn--sm" type="button" id="acc-cancel-yes">Tak, anuluj abonament</button>
+        </div>
+      </section>
+
+      <div class="account__foot">
+        <a class="btn btn--sm" href="index.html#licencja"><span class="btn__icon" data-ui-icon="print" data-size="16"></span>Licencja (PDF)</a>
+        <a class="btn btn--sm" href="index.html">Wyloguj</a>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Dodatkowe podglądy: panel stanów do prezentacji (przycisk lub klawisz D) -->
+  <button class="proto-toggle" id="proto-toggle" type="button" aria-expanded="false" aria-controls="proto">Dodatkowe podglądy</button>
   <div class="proto" id="proto" hidden role="region" aria-label="Panel prototypu">
-    <p class="proto__tag">Element prototypu · stany ekranu</p>
-    <p class="proto__hint">Do prezentacji. Klawisz D otwiera i zamyka panel.</p>
+    <p class="proto__tag">Dodatkowe podglądy · stany ekranu</p>
+    <p class="proto__hint">Do prezentacji. Panel otwiera też klawisz D.</p>
     <div class="proto__grid" id="proto-states">
       <button type="button" data-state="idle"><span>01</span>Bezczynny</button>
       <button type="button" data-state="loading"><span>02</span>Ładowanie</button>
       <button type="button" data-state="playing"><span>03</span>Odtwarzanie</button>
       <button type="button" data-state="paused"><span>04</span>Pauza</button>
-      <button type="button" data-state="elsewhere"><span>05</span>Inne urządzenie</button>
+      <button type="button" data-state="subscribe"><span>05</span>Opłać abonament</button>
       <button type="button" data-state="inactive"><span>06</span>Dostęp nieaktywny</button>
       <button type="button" data-state="offline"><span>07</span>Brak internetu</button>
     </div>
@@ -140,9 +213,9 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="js/profiles.js" defer></script>
-  <script src="js/audio.js" defer></script>
-  <script src="js/visual.js" defer></script>
-  <script src="js/player.js" defer></script>
+  <script src="js/profiles.js?v=20261003j" defer></script>
+  <script src="js/audio.js?v=20261003j" defer></script>
+  <script src="js/visual.js?v=20261003j" defer></script>
+  <script src="js/player.js?v=20261003j" defer></script>
 </body>
 </html>
