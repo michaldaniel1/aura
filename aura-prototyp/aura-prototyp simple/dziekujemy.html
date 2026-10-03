@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>AURA · Dostęp jest gotowy</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0B0B0C">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261004b">
+</head>
+<body class="page-thanks">
+  <header class="thanks-top shell">
+    <a class="logo" href="index.html" aria-label="AURA, strona główna">AURA <span class="logo__slash">/</span></a>
+  </header>
+
+  <main class="thanks shell">
+    <div class="thanks__card">
+      <p class="label thanks__ok"><span aria-hidden="true">✓</span> Płatność przyjęta</p>
+      <h1 class="h2 thanks__title">Dostęp jest gotowy</h1>
+
+      <p class="thanks__text">Twój indywidualny link do odtwarzacza:</p>
+      <!-- [ATRAPA] w produkcji token przychodzi z sesji Stripe Checkout -->
+      <div class="thanks__link">
+        <label class="sr" for="thanks-url">Link do odtwarzacza</label>
+        <input class="thanks__url" id="thanks-url" type="text" readonly value="https://auramuzyka.pl/p/k7Hq2xR9mT4w">
+      </div>
+      <div class="thanks__actions">
+        <button class="btn" type="button" id="thanks-copy">Kopiuj link</button>
+        <a class="btn btn--solid" id="thanks-open" href="player.html?t=k7Hq2xR9mT4w">Otwórz odtwarzacz</a>
+      </div>
+
+      <p class="thanks__mail">Ten sam link wysłaliśmy też e-mailem.</p>
+
+      <div class="thanks__tip">
+        <p class="label">Rada</p>
+        <p>Otwórz link na urządzeniu podłączonym do głośników i&nbsp;zapisz go w&nbsp;zakładkach. Link działa bez logowania, więc nie udostępniaj go poza lokalem.</p>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/links.js?v=20261004b" defer></script>
+  <script src="js/thanks.js?v=20261004b" defer></script>
+</body>
+</html>
